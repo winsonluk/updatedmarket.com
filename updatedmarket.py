@@ -55,7 +55,8 @@ def home():
     title = 'Updated Markets © '
     download_data = '<button type="button" onclick="window.open(\'/download\',\'_blank\');">Download Data (.csv)</button>'
     download_code = '<button type="button" onclick="window.open(\'https://github.com/winsonluk/updatedmarket.com/archive/refs/heads/master.zip\',\'_blank\');">Download Code (.zip)</button>'
-    table = df.style.apply(lambda x : ['color: red' if 'down' in i else 'color: green' for i in x], subset = ['DJIA', 'S&P 500', 'Nasdaq']).render()
+    table = df.style.apply(lambda x : ['color: red' if 'down' in i else 'color: green' for i in x], subset = ['DJIA', 'S&P 500', 'Nasdaq']).set_properties(**{'background-color' : '#eee', 'border' : '1px solid black'}).render()
+
     return make_response(render_template_string('&nbsp;|&nbsp;'.join((title, download_data, download_code)) + '<hr>' + table))
 
 @application.route('/download')
