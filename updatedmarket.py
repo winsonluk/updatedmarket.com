@@ -1,3 +1,4 @@
+from flask import Flask, make_response, render_template_string
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
@@ -40,60 +41,18 @@ closing_p1 = article[1].text
 closing_p2 = article[2].text
 closing_p3 = article[3].text
 
-columns = ['Time', 'DJIA', 'S&P 500', 'Nasdaq', 'Subject', 'Comment']
-opening = {'DJIA' : opening_dji, 'S&P 500' : opening_inx, 'Nasdaq' : opening_ixic, 'Subject' : opening_subject, 'Comment' : opening_p1 + '\n' + opening_p2 + '\n' + opening_p3}
-midday = {'DJIA' : midday_dji, 'S&P 500' : midday_inx, 'Nasdaq' : midday_ixic, 'Subject' : midday_subject, 'Comment' : midday_p1 + '\n' + midday_p2 + '\n' + midday_p3}
-closing = {'DJIA' : closing_dji, 'S&P 500' : closing_inx, 'Nasdaq' : closing_ixic, 'Subject' : closing_subject, 'Comment' : closing_p1 + '\n' + closing_p2 + '\n' + closing_p3}
+columns = ['Time', 'DJIA', 'S&P 500', 'Nasdaq', 'Subject', 'Paragraph 1', 'Paragraph 2', 'Paragraph 3']
+opening = {'DJIA' : opening_dji, 'S&P 500' : opening_inx, 'Nasdaq' : opening_ixic, 'Subject' : opening_subject, 'Paragraph 1' : opening_p1, 'Paragraph 2' : opening_p2, 'Paragraph 3' : opening_p3}
+midday = {'DJIA' : midday_dji, 'S&P 500' : midday_inx, 'Nasdaq' : midday_ixic, 'Subject' : midday_subject, 'Paragraph 1' : midday_p1, 'Paragraph 2' : midday_p2, 'Paragraph 3' : midday_p3}
+closing = {'DJIA' : closing_dji, 'S&P 500' : closing_inx, 'Nasdaq' : closing_ixic, 'Subject' : closing_subject, 'Paragraph 1' : closing_p1, 'Paragraph 2' : closing_p2, 'Paragraph 3' : closing_p3}
 df = pd.DataFrame([opening, midday, closing], index=[opening_date, midday_date, closing_date])
-
-print(opening_date)
-print('---')
-print(opening_dji)
-print('---')
-print(opening_inx)
-print('---')
-print(opening_ixic)
-print('---')
-print(opening_subject)
-print('---')
-print(opening_p1)
-print('---')
-print(opening_p2)
-print('---')
-print(opening_p3)
-print('---')
-
-print(midday_date)
-print('---')
-print(midday_dji)
-print('---')
-print(midday_inx)
-print('---')
-print(midday_ixic)
-print('---')
-print(midday_subject)
-print('---')
-print(midday_p1)
-print('---')
-print(midday_p2)
-print('---')
-print(midday_p3)
-print('---')
-
-print(closing_date)
-print('---')
-print(closing_dji)
-print('---')
-print(closing_inx)
-print('---')
-print(closing_ixic)
-print('---')
-print(closing_subject)
-print('---')
-print(closing_p1)
-print('---')
-print(closing_p2)
-print('---')
-print(closing_p3)
-
 df.to_csv('market.csv')
+
+application = Flask(__name__)
+
+@application.route('/')
+def home():
+    return make_response(render_template_string(df.to_html()))
+
+if __name__ == '__main__':
+    application.run(host='0.0.0.0', debug=True)
