@@ -1,4 +1,4 @@
-from flask import Flask, make_response, render_template_string
+from flask import Flask, make_response, render_template_string, send_file
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
@@ -52,10 +52,13 @@ application = Flask(__name__)
 
 @application.route('/')
 def home():
-    refresh = '<button type="button">Refresh</button>'
-    download_data = '<button type="button">Download Data (.csv)</button>'
-    download_code = '<button type="button">Download Code (.zip)</button>'
-    return make_response(render_template_string('&nbsp;|&nbsp;'.join((refresh, download_data, download_code)) + '<hr>' + df.to_html()))
+    download_data = '<button type="button" onclick="window.open(\'/download\',\'_blank\');">Download Data (.csv)</button>'
+    download_code = '<button type="button" onclick="window.open(\'https://github.com/winsonluk/updatedmarket.com/archive/refs/heads/master.zip\',\'_blank\');">Download Code (.zip)</button>'
+    return make_response(render_template_string('&nbsp;|&nbsp;'.join((download_data, download_code)) + '<hr>' + df.to_html()))
+
+@application.route('/download')
+def download():
+    return send_file('market.csv', as_attachment=True)
 
 if __name__ == '__main__':
     application.run(host='0.0.0.0', debug=True)
