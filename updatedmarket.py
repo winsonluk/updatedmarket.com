@@ -42,19 +42,21 @@ closing_p2 = article[2].text
 closing_p3 = article[3].text
 
 columns = ['Time', 'DJIA', 'S&P 500', 'Nasdaq', 'Subject', 'First Comment', 'Second Comment', 'Third Comment']
-opening = {'DJIA' : opening_dji, 'S&P 500' : opening_inx, 'Nasdaq' : opening_ixic, 'Subject' : opening_subject, 'First Comment' : opening_p1, 'Second Comment' : opening_p2, 'Third Comment' : opening_p3}
-midday = {'DJIA' : midday_dji, 'S&P 500' : midday_inx, 'Nasdaq' : midday_ixic, 'Subject' : midday_subject, 'First Comment' : midday_p1, 'Second Comment' : midday_p2, 'Third Comment' : midday_p3}
 closing = {'DJIA' : closing_dji, 'S&P 500' : closing_inx, 'Nasdaq' : closing_ixic, 'Subject' : closing_subject, 'First Comment' : closing_p1, 'Second Comment' : closing_p2, 'Third Comment' : closing_p3}
-df = pd.DataFrame([opening, midday, closing], index=[opening_date, midday_date, closing_date])
+midday = {'DJIA' : midday_dji, 'S&P 500' : midday_inx, 'Nasdaq' : midday_ixic, 'Subject' : midday_subject, 'First Comment' : midday_p1, 'Second Comment' : midday_p2, 'Third Comment' : midday_p3}
+opening = {'DJIA' : opening_dji, 'S&P 500' : opening_inx, 'Nasdaq' : opening_ixic, 'Subject' : opening_subject, 'First Comment' : opening_p1, 'Second Comment' : opening_p2, 'Third Comment' : opening_p3}
+df = pd.DataFrame([closing, midday, opening], index=[closing_date, midday_date, opening_date])
 df.to_csv('market.csv')
 
 application = Flask(__name__)
 
 @application.route('/')
 def home():
+    title = 'Updated Markets © '
     download_data = '<button type="button" onclick="window.open(\'/download\',\'_blank\');">Download Data (.csv)</button>'
     download_code = '<button type="button" onclick="window.open(\'https://github.com/winsonluk/updatedmarket.com/archive/refs/heads/master.zip\',\'_blank\');">Download Code (.zip)</button>'
-    return make_response(render_template_string('&nbsp;|&nbsp;'.join((download_data, download_code)) + '<hr>' + df.to_html()))
+    table = df.style.apply(lambda x : ['color: red' if 'down' in i else 'color: green' for i in x], subset = ['DJIA', 'S&P 500', 'Nasdaq']).render()
+    return make_response(render_template_string('&nbsp;|&nbsp;'.join((title, download_data, download_code)) + '<hr>' + table))
 
 @application.route('/download')
 def download():
