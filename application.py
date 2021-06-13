@@ -47,21 +47,28 @@ midday = {'DJIA' : midday_dji, 'S&P 500' : midday_inx, 'Nasdaq' : midday_ixic, '
 opening = {'DJIA' : opening_dji, 'S&P 500' : opening_inx, 'Nasdaq' : opening_ixic, 'Subject' : opening_subject, 'First Comment' : opening_p1, 'Second Comment' : opening_p2, 'Third Comment' : opening_p3}
 df = pd.DataFrame([closing, midday, opening], index=[closing_date, midday_date, opening_date])
 df.to_csv('market.csv')
+with open('latest.txt', 'w') as f:
+    f.write(closing_subject + '. ' + ' '.join((closing_p1, closing_p2, closing_p3)))
 
 application = Flask(__name__)
 
 @application.route('/')
 def home():
     title = 'Updated Markets © '
+    download_latest = '<button type="button" onclick="window.open(\'/latest\',\'_blank\');">Latest Comments (.txt)</button>'
     download_data = '<button type="button" onclick="window.open(\'/download\',\'_blank\');">Download Data (.csv)</button>'
     download_code = '<button type="button" onclick="window.open(\'https://github.com/winsonluk/updatedmarket.com/archive/refs/heads/master.zip\',\'_blank\');">Download Code (.zip)</button>'
     table = df.style.apply(lambda x : ['color: red' if 'down' in i else 'color: green' for i in x], subset = ['DJIA', 'S&P 500', 'Nasdaq']).set_properties(**{'background-color' : '#eee', 'border' : '1px solid black'}).render()
 
-    return make_response(render_template_string('&nbsp;|&nbsp;'.join((title, download_data, download_code)) + '<hr>' + table))
+    return make_response(render_template_string('&nbsp;|&nbsp;'.join((title, download_latest, download_data, download_code)) + '<hr>' + table))
 
 @application.route('/download')
 def download():
     return send_file('market.csv', as_attachment=True)
+
+@application.route('/latest')
+def latest():
+    return send_file('latest.txt', as_attachment=True)
 
 if __name__ == '__main__':
     application.run(host='0.0.0.0', debug=True)
